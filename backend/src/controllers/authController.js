@@ -4,7 +4,7 @@ export default class AuthController {
 
     static async changePassword(req, res, next) {
         try {
-            await changePassword(req.user.id, req.body.currentPassword, req.body.newPassword);
+            await changePassword(req.userId, req.body.currentPassword, req.body.newPassword);
             res.json({ message: 'Contraseña actualizada correctamente' });
         } catch (error) {
             next(error);
@@ -22,8 +22,17 @@ export default class AuthController {
 
     static async login(req, res, next) {
         try {
-            const token = await login(req.body);
-            res.json(token);
+            const { token, userId } = await login(req.body);
+            res.cookie(
+                'authToken', token,{
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 8 * 60 * 60 * 1000 // 8 horas
+                }
+            )
+
+            res.json({ message: 'Login exitoso', userId });
         } catch (error) {
             next(error);
         }

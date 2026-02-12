@@ -1,4 +1,4 @@
-import { getAll, getById, update, deleteUser, getByEmail } from '../models/userModel.js';
+import { getAll, getById, update, deleteUser} from '../models/userModel.js';
 
 class UserController {
   // GET /api/users
