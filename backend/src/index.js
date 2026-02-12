@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-
+import authRoutes from './routes/authRoutes.js';
 // Importar rutas
 import userRoutes from './routes/userRoutes.js';
 
@@ -19,6 +19,8 @@ app.get('/api/health', (req, res) => {
 
 // Rutas MVC
 app.use('/api/users', userRoutes);
+
+app.use('/api/auth', authRoutes);
 
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);

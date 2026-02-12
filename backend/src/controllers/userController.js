@@ -1,5 +1,4 @@
-import { randomUUID } from 'crypto';
-import { getAll, getById, create, update, deleteUser, getByEmail } from '../models/userModel.js';
+import { getAll, getById, update, deleteUser, getByEmail } from '../models/userModel.js';
 
 class UserController {
   // GET /api/users
@@ -30,30 +29,6 @@ class UserController {
     }
   }
 
-  // POST /api/users
-  static async create(req, res) {
-    try {
-      const { email, full_name, password_hash } = req.body;
-      
-      if (!email || !full_name) {
-        return res.status(400).json({ error: 'Email y nombre completo son requeridos' });
-      }
-
-      // Verificar si el email ya existe
-      const existingUser = await getByEmail(email);
-      if (existingUser) {
-        return res.status(409).json({ error: 'El email ya está registrado' });
-      }
-
-      const id = randomUUID();
-      const user = await create({ id, email, full_name, password_hash });
-      
-      res.status(201).json(user);
-    } catch (error) {
-      console.error('Error al crear usuario:', error);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    }
-  }
 
   // PUT /api/users/:id
   static async update(req, res) {
