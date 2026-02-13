@@ -1,5 +1,17 @@
 import * as runService from '../services/runsService.js';
 class RunsController {
+    static async getRunById(req, res, next) {
+        try {
+            const run = await runService.getById(req.params.id);
+            if (!run) {
+                return res.status(404).json({ error: 'Run not found' });
+            }
+            res.json(run);
+        } catch (err) {
+            next(err);
+        }
+    }
+
     static async startRun(req, res, next) {
         try {
             const run = await runService.startRun(
