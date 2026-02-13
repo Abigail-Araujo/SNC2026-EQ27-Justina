@@ -26,13 +26,13 @@ export default class AuthController {
             res.cookie(
                 'authToken', token,{
                     httpOnly: true,
-                    secure: true,
-                    sameSite: 'strict',
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
                     maxAge: 8 * 60 * 60 * 1000 // 8 horas
                 }
             )
 
-            res.json({ message: 'Login exitoso', userId });
+            res.json({ message: 'Login realizado correctamente', userId });
         } catch (error) {
             next(error);
         }

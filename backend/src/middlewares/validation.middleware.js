@@ -38,3 +38,21 @@ export const validateRegister = (req, res, next) => {
 
     next();
 };
+
+export const validateChangePassword = (req, res, next) => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: 'Contraseña actual y nueva son requeridas' });
+    }
+
+    if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'Nueva contraseña mínimo 6 caracteres' });
+    }
+
+    if (currentPassword === newPassword) {
+        return res.status(400).json({ error: 'La nueva contraseña debe ser diferente a la actual' });
+    }
+
+    next();
+};

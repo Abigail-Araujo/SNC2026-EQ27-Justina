@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
-import { getById, getByEmail, create, updatePasswordHash } from '../models/userModel.js';
+import { getByIdWithPassword, getByEmail, create, updatePasswordHash, updateLastLogin } from '../models/userModel.js';
 
 
 export const changePassword = async (userId,currentPassword, newPassword) =>{
-    const user = await getById(userId);
+    const user = await getByIdWithPassword(userId);
     if (!user){
         throw new Error('Usuario no encontrado');
     }
@@ -49,6 +49,9 @@ export const login = async ({ email, password }) => {
     process.env.JWT_SECRET,
     { expiresIn: '8h' }
   );
+
+  // Actualizar último login
+  await updateLastLogin(user.id);
 
   return { token , userId: user.id };
 };
