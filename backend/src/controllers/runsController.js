@@ -1,5 +1,17 @@
 import * as runService from '../services/runsService.js';
 class RunsController {
+    static async getRunById(req, res, next) {
+        try {
+            const run = await runService.getById(req.params.id);
+            if (!run) {
+                return res.status(404).json({ error: 'Run not found' });
+            }
+            res.json(run);
+        } catch (err) {
+            next(err);
+        }
+    }
+
     static async startRun(req, res, next) {
         try {
             const run = await runService.startRun(
@@ -38,6 +50,31 @@ class RunsController {
         try {
             const runs = await runService.getAll();
             res.json(runs);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    static async update(req, res, next) {
+        try {
+            const run = await runService.updateRun(req.params.id, req.body);
+            if (!run) {
+                return res.status(404).json({ error: 'Run not found' });
+            }
+            res.json(run);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    static async delete(req, res, next) {
+        try {
+            const deleted = await runService.deleteRun(req.params.id);
+            if (!deleted) {
+                return res.status(404).json({ error: 'Run not found' });
+            }
+
+            res.json({ message: 'Run deleted successfully' });
         } catch (err) {
             next(err);
         }

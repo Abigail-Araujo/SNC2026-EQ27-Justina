@@ -9,6 +9,9 @@ router.post('/', authenticate, RunsController.startRun);
 router.patch('/:id/finish', authenticate, RunsController.finishRun);
 router.get('/me', authenticate, RunsController.getRunsByUser);
 router.get('/', authenticate, RunsController.getAll);
+router.get('/:id', authenticate, RunsController.getRunById);
+router.patch('/:id', authenticate, RunsController.update);
+router.delete('/:id', authenticate, RunsController.delete);
 
 
 
