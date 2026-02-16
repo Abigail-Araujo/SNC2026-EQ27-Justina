@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+
 import { createScenario, deleteScenario, getAll, getScenarioById, updateScenario } from '../models/scenarioModel.js';
 
 class ScenarioController {
@@ -14,7 +14,7 @@ class ScenarioController {
   }
 
     // GET /api/scenarios/:id
-    static async getScenarioById(req, res) {
+    static async getById(req, res) {
         try {
           const { id } = req.params;
           const scenario = await getScenarioById(id);
@@ -32,7 +32,6 @@ class ScenarioController {
   static async create(req, res) {
     try {
       const scenario = await createScenario({
-        id: randomUUID(),
         ...req.body
       });
 

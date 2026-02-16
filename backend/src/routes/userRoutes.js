@@ -4,8 +4,8 @@ import { authenticate } from '../middlewares/auth.middleware.js';
 const router = Router();
 
 // Rutas de usuarios (solo lectura y actualización)
-router.get('/', UserController.getAll);
-router.get('/:id', UserController.getById);
+router.get('/', authenticate, UserController.getAll);
+router.get('/:id', authenticate, UserController.getById);
 // Nota: POST suprimido - usar POST /api/auth/register en su lugar
 router.patch('/:id', authenticate, UserController.update);
 router.delete('/:id', authenticate, UserController.delete);
