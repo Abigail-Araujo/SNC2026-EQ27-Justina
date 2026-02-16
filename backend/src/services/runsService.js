@@ -32,3 +32,15 @@ export const getRunsByUser = async (userId) => {
 export const getAll = async () => {
   return await runModel.getAll();
 };
+
+export const getById = async (runId) => {
+  return await runModel.getRunById(runId);
+};
+
+export const updateRun = async (runId, data) => {
+  return await runModel.updateRun(runId, data);
+};
+
+export const deleteRun = async (runId) => {
+  return await runModel.deleteRun(runId);
+};

@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
-import { getById, getByEmail, create, updatePasswordHash } from '../models/userModel.js';
+import { getByIdWithPassword, getByEmail, create, updatePasswordHash } from '../models/userModel.js';
 
 
 export const changePassword = async (userId,currentPassword, newPassword) =>{
-    const user = await getById(userId);
+    const user = await getByIdWithPassword(userId);
     if (!user){
         throw new Error('Usuario no encontrado');
     }

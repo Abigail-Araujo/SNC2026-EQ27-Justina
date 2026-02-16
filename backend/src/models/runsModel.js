@@ -53,3 +53,23 @@ export const finishRun = async (id) => {
 
   return rows[0];
 };
+
+export const updateRun = async (id, data) => {
+  const { rows } = await query(
+    `UPDATE runs
+     SET status = COALESCE($2, status),
+         ended_at = COALESCE($3, ended_at),
+         seed = COALESCE($4, seed),
+         config = COALESCE($5, config)
+     WHERE id = $1
+     RETURNING *`,
+    [id, data.status, data.ended_at, data.seed, data.config]
+  );
+
+  return rows[0];
+};
+
+export const deleteRun = async (id) => {
+  const { rows } = await query('DELETE FROM runs WHERE id = $1 RETURNING id', [id]);
+  return rows[0];
+};

@@ -19,6 +19,17 @@ export const getById = async (id) => {
   return rows[0];
 }
 
+// Obtener usuario por ID incluyendo hash (uso interno auth)
+export const getByIdWithPassword = async (id) => {
+  const { rows } = await query(
+    `SELECT id, email, full_name, password_hash, status, created_at, last_login_at
+     FROM users
+     WHERE id = $1`,
+    [id]
+  );
+  return rows[0];
+}
+
 // Obtener usuario por email
 export const getByEmail = async (email) => {
   const { rows } = await query('SELECT * FROM users WHERE email = $1', [email]);
