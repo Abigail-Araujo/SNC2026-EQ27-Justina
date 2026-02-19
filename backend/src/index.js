@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import userRoutes from './routes/userRoutes.js';
 import scenarioRoutes from './routes/scenarioRoutes.js';
 import runsRoutes from './routes/runsRoutes.js';
+import procedureRoutes from './routes/procedureRoutes.js';
 
 
 const app = express();
@@ -29,6 +30,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/scenarios', scenarioRoutes);
 
 app.use('/api/runs', runsRoutes);
+
+app.use('/api/procedures', procedureRoutes);
 
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
