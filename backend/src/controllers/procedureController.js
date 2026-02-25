@@ -5,7 +5,7 @@ import {
   getAll,
   getProcedureById,
   updateProcedure
-} from '../models/procedureModel.js';
+} from '../repositories/procedureModel.js';
 
 class ProcedureController {
   static async getAll(req, res) {
