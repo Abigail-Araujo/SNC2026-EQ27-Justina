@@ -8,6 +8,8 @@ import userRoutes from './routes/userRoutes.js';
 import scenarioRoutes from './routes/scenarioRoutes.js';
 import runsRoutes from './routes/runsRoutes.js';
 import runMetricSummaryRoutes from './routes/runMetricSummaryRoutes.js';
+import procedureRoutes from './routes/procedureRoutes.js';
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -53,6 +55,7 @@ app.use((err, req, res, next) => {
   // Error genérico
   res.status(500).json({ error: 'Error interno del servidor' });
 });
+app.use('/api/procedures', procedureRoutes);
 
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
