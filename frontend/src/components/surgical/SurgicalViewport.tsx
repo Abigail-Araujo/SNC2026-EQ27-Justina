@@ -1,0 +1,203 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import { Slider } from "../ui/slider";
+import { ZoomIn, ZoomOut, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { OrganViewer3D } from "./OrganViewer3D";
+import { useSimulation } from "../../contexts/SimulationContext";
+
+export function SurgicalViewport() {
+  const { organ } = useParams<{ organ: string }>();
+  const { activeViewTool, viewResetCounter } = useSimulation();
+  const [zoom, setZoom] = useState([50]);
+  
+  const pan = useRef({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const lastPos = useRef({ x: 0, y: 0 });
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const currentOrgan = organ || "liver";
+
+  const movePan = useCallback((dx: number, dy: number) => {
+    pan.current = { x: pan.current.x + dx, y: pan.current.y + dy };
+  }, []);
+
+  useEffect(() => {
+    setZoom([50]);
+    pan.current = { x: 0, y: 0 };
+  }, [viewResetCounter]);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (activeViewTool === "move") {
+        isDragging.current = true;
+        lastPos.current = { x: e.clientX, y: e.clientY };
+        (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+      }
+    },
+    [activeViewTool]
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (isDragging.current && activeViewTool === "move") {
+        const dx = e.clientX - lastPos.current.x;
+        const dy = e.clientY - lastPos.current.y;
+        pan.current = { x: pan.current.x + dx, y: pan.current.y + dy };
+        lastPos.current = { x: e.clientX, y: e.clientY };
+      }
+    },
+    [activeViewTool]
+  );
+
+  const handlePointerEnd = useCallback(() => {
+    isDragging.current = false;
+  }, []);
+
+  // Control del zoom con la rueda del mouse
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (activeViewTool === "zoom") {
+        e.preventDefault();
+        setZoom((prevZoom) => [
+          Math.max(0, Math.min(100, prevZoom[0] - e.deltaY * 0.05))
+        ]);
+      }
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, [activeViewTool]);
+
+  // NUEVO: Control del paneo con el teclado (Flechas y WASD)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignoramos si el usuario está escribiendo en algún input de la página
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      switch (e.key) {
+        case "ArrowUp":
+        case "w":
+        case "W":
+          e.preventDefault(); // Evita que la página haga scroll
+          movePan(0, 50);
+          break;
+        case "ArrowDown":
+        case "s":
+        case "S":
+          e.preventDefault();
+          movePan(0, -50);
+          break;
+        case "ArrowLeft":
+        case "a":
+        case "A":
+          e.preventDefault();
+          movePan(-50, 0);
+          break;
+        case "ArrowRight":
+        case "d":
+        case "D":
+          e.preventDefault();
+          movePan(50, 0);
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [movePan]);
+
+  const cursor =
+    activeViewTool === "move"
+      ? isDragging.current ? "grabbing" : "grab"
+      : activeViewTool === "zoom"
+        ? "zoom-in"
+        : "default";
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative flex-1 rounded-xl overflow-hidden glow-border bg-background touch-none"
+      style={{ cursor }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+      onPointerCancel={handlePointerEnd}
+      onPointerLeave={handlePointerEnd}
+    >
+      <div className="absolute inset-0">
+        <OrganViewer3D organ={currentOrgan} zoom={zoom[0]} panRef={pan} />
+      </div>
+
+      {/* Crosshair overlay */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="w-6 h-px bg-primary/40" />
+        <div className="h-6 w-px bg-primary/40 absolute" />
+      </div>
+
+      {/* Vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, transparent 50%, hsl(var(--background) / 0.6) 100%)",
+        }}
+      />
+
+      {/* Controles Direccionales */}
+      <div className="absolute bottom-3 left-3 glass-panel rounded-lg p-1.5 flex flex-col items-center gap-1 z-10">
+        <button
+          onClick={() => movePan(0, 50)}
+          className="p-1 sm:p-1.5 hover:bg-primary/20 rounded-md transition-colors active:scale-95"
+          title="Mover arriba (W / ↑)"
+        >
+          <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+        </button>
+        <div className="flex gap-1">
+          <button
+            onClick={() => movePan(-50, 0)}
+            className="p-1 sm:p-1.5 hover:bg-primary/20 rounded-md transition-colors active:scale-95"
+            title="Mover izquierda (A / ←)"
+          >
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+          </button>
+          <button
+            onClick={() => movePan(0, -50)}
+            className="p-1 sm:p-1.5 hover:bg-primary/20 rounded-md transition-colors active:scale-95"
+            title="Mover abajo (S / ↓)"
+          >
+            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+          </button>
+          <button
+            onClick={() => movePan(50, 0)}
+            className="p-1 sm:p-1.5 hover:bg-primary/20 rounded-md transition-colors active:scale-95"
+            title="Mover derecha (D / →)"
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+          </button>
+        </div>
+      </div>
+
+      {/* Zoom control */}
+      <div className="absolute bottom-3 right-3 glass-panel rounded-lg px-2 sm:px-3 py-2 flex items-center gap-2 w-32 sm:w-48 z-10">
+        <ZoomOut className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+        <Slider
+          value={zoom}
+          onValueChange={setZoom}
+          max={100}
+          min={0}
+          step={1}
+          className="[&_[role=slider]]:bg-primary [&_[role=slider]]:border-primary [&_[role=slider]]:w-3 [&_[role=slider]]:h-3"
+        />
+        <ZoomIn className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+        <span className="text-mono text-[10px] text-primary w-8 text-right hidden sm:inline-block">
+          {Math.round(zoom[0])}%
+        </span>
+      </div>
+    </div>
+  );
+}
