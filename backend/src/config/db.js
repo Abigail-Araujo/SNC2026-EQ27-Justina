@@ -13,15 +13,3 @@ export const pool = new Pool({
 });
 
 export const query = (text, params) => pool.query(text, params);
-
-// Verificar conexión
-// pool.on('connect', () => {
-//   console.log('Conectado a PostgreSQL');
-// });
-
-// pool.on('error', (err) => {
-//   console.error('Error en la conexión a PostgreSQL:', err);
-//   process.exit(-1);
-// });
-
-

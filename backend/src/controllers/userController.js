@@ -1,10 +1,10 @@
-import { getAll, getById, update, deleteUser} from '../models/userModel.js';
+import * as userRepository from '../repositories/userRepository.js';
 
 class UserController {
   // GET /api/users
   static async getAll(req, res) {
     try {
-      const users = await getAll();
+      const users = await userRepository.getAll();
       res.json(users);
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
@@ -16,7 +16,7 @@ class UserController {
   static async getById(req, res) {
     try {
       const { id } = req.params;
-      const user = await getById(id);
+      const user = await userRepository.getById(id);
       
       if (!user) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -36,7 +36,7 @@ class UserController {
       const { id } = req.params;
       const { email, full_name, status } = req.body;
       
-      const user = await update(id, { email, full_name, status });
+      const user = await userRepository.update(id, { email, full_name, status });
       
       if (!user) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -53,7 +53,7 @@ class UserController {
   static async delete(req, res) {
     try {
       const { id } = req.params;
-      const user = await deleteUser(id);
+      const user = await userRepository.deleteUser(id);
       
       if (!user) {
         return res.status(404).json({ error: 'Usuario no encontrado' });

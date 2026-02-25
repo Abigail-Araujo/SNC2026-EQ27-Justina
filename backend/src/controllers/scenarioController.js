@@ -1,11 +1,11 @@
-
-import { createScenario, deleteScenario, getAll, getScenarioById, updateScenario } from '../models/scenarioModel.js';
+import { randomUUID } from 'crypto';
+import * as scenarioRepository from '../repositories/scenarioRepository.js';
 
 class ScenarioController {
   // GET /api/scenarios
   static async getAll(req, res) {
     try {
-      const scenarios = await getAll();
+      const scenarios = await scenarioRepository.getAll();
       res.json(scenarios);
     } catch (error) {
       console.error('Error al obtener escenarios:', error);
@@ -17,7 +17,7 @@ class ScenarioController {
     static async getById(req, res) {
         try {
           const { id } = req.params;
-          const scenario = await getScenarioById(id);
+          const scenario = await scenarioRepository.getScenarioById(id);
           if (!scenario) {
             return res.status(404).json({ error: 'Escenario no encontrado' });
           }
@@ -31,7 +31,8 @@ class ScenarioController {
 // POST /api/scenarios
   static async create(req, res) {
     try {
-      const scenario = await createScenario({
+      const scenario = await scenarioRepository.createScenario({
+        id: randomUUID(),
         ...req.body
       });
 
@@ -45,7 +46,7 @@ class ScenarioController {
   // PATCH /api/scenarios/:id
   static async update(req, res) {
     try {
-      const scenario = await updateScenario(req.params.id, req.body);
+      const scenario = await scenarioRepository.updateScenario(req.params.id, req.body);
       if (!scenario) {
         return res.status(404).json({ error: 'Escenario no encontrado' });
       }
@@ -59,7 +60,7 @@ class ScenarioController {
   // DELETE /api/scenarios/:id
   static async delete(req, res) {
     try {
-      const deleted = await deleteScenario(req.params.id);
+      const deleted = await scenarioRepository.deleteScenario(req.params.id);
       if (!deleted) {
         return res.status(404).json({ error: 'Escenario no encontrado' });
       }

@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import userRoutes from './routes/userRoutes.js';
 import scenarioRoutes from './routes/scenarioRoutes.js';
 import runsRoutes from './routes/runsRoutes.js';
-
+import runMetricSummaryRoutes from './routes/runMetricSummaryRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -32,6 +32,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/scenarios', scenarioRoutes);
 
 app.use('/api/runs', runsRoutes);
+
+app.use('/api/runsmetricsummary', runMetricSummaryRoutes);
 
 // Middleware de manejo de errores global
 app.use((err, req, res, next) => {
