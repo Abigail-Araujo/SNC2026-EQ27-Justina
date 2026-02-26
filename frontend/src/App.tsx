@@ -5,6 +5,7 @@ import DashboardView from './views/DashboardView';
 import ResultsView from './views/ResultsView';
 import SimulationView from './views/SimulationView';
 import SettingsView from './views/SettingsView';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 function App() {
   return (
@@ -13,10 +14,12 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<LoginView />} />
         <Route path="/register" element={<RegisterView />} />
-        <Route path="/dashboard" element={<DashboardView />} />
-        <Route path="/results" element={<ResultsView />} />
-        <Route path="/simulation" element={<SimulationView />} />
-        <Route path="/settings" element={<SettingsView />} />
+        
+        {/* Rutas protegidas */}
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardView /></ProtectedRoute>} />
+        <Route path="/results" element={<ProtectedRoute><ResultsView /></ProtectedRoute>} />
+        <Route path="/simulation" element={<ProtectedRoute><SimulationView /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><SettingsView /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

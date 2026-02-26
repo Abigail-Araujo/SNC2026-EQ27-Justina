@@ -36,9 +36,20 @@ const Navbar: FC<NavbarProps> = () => {
   const activeStyles = "bg-sky-950 text-white px-4 py-2 rounded-full font-bold shadow-sm";
   const inactiveStyles = "text-white/90 hover:text-white px-4 py-2 transition-colors font-medium";
 
-  const handleLogout = () => {
-    // Aquí puedes añadir lógica futura para borrar cookies o estado global
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:3000/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      navigate('/login');
+    }
   };
 
   return (

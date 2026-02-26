@@ -8,9 +8,10 @@
     "start": "nodemon src/index.js"
   },
   "nodemonConfig": {
-    "ignore": [
-      "src/*"
-    ]
+    "watch": [
+      "src"
+    ],
+    "ext": "js,json"
   },
   "keywords": [],
   "author": "",

@@ -47,4 +47,9 @@ export default class AuthController {
         }
     }
 
+    static async verifyAuth(req, res, next) {
+        // middleware authenticate ya validó la cookie y cargó req.userId
+        res.status(200).json({ isAuthenticated: true, userId: req.userId });
+    }
+
 }
