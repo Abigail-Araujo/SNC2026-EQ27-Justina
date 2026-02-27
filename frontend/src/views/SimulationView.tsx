@@ -6,7 +6,7 @@ import { VitalStats } from "../components/surgical/VitalStats";
 import { SurgicalViewport } from "../components/surgical/SurgicalViewport";
 import { SimulationProvider } from "../contexts/SimulationContext";
 
-const validOrgans = ["kidney", "liver"];
+const validOrgans = ["kidney", "liver", "gastric", "colon", "esophagectomy"];
 
 const SimulationView = () => {
   const { organ } = useParams<{ organ: string }>();

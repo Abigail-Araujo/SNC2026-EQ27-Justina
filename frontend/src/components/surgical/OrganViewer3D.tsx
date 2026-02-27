@@ -4,15 +4,25 @@ import { OrbitControls, useGLTF, Environment, Center } from "@react-three/drei";
 import * as THREE from "three";
 import surgicalKidney from "../../assets/surgical/surgical-kidney.jpg";
 import surgicalLiver from "../../assets/surgical/surgical-liver.jpg";
+import surgicalGastric from "../../assets/surgical/surgical-gastric.png";
+import surgicalColon from "../../assets/surgical/surgical-colon.png";
+import surgicalEsophagectomy from "../../assets/surgical/surgical-esophagectomy.png";
 
 const modelPaths: Record<string, string> = {
   kidney: "/models/kidney.glb",
   liver: "/models/liver.glb", 
+  gastric : "/models/digestive-sistem.glb",
+  colon: "/models/colon.glb",
+  esophagectomy: "/models/esophagus.glb",
+
 };
 
 const fallbackImages: Record<string, string> = {
   kidney: surgicalKidney,
   liver: surgicalLiver,
+  gastric: surgicalGastric,
+  colon: surgicalColon,
+  esophagectomy: surgicalEsophagectomy,
 };
 
 // Recibimos panRef

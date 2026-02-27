@@ -1,10 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
 import kidneyImg from "../../assets/surgical/organ-kidney.png";
 import liverImg from "../../assets/surgical/organ-liver.png";
+import gastricImg from "../../assets/surgical/organ-gastric.jpg";
+import colonImg from "../../assets/surgical/organ-colon.jpg";
+import esophagectomyImg from "../../assets/surgical/organ-esophagus.jpg"; 
 
 const simulations = [
   { id: "kidney", label: "Riñón", image: kidneyImg, path: "/simulation/kidney" },
   { id: "liver", label: "Hígado", image: liverImg, path: "/simulation/liver" },
+  { id: "gastric", label: "Estómago", image: gastricImg, path: "/simulation/gastric" },
+  { id: "colon", label: "Colon", image: colonImg, path: "/simulation/colon" },
+  { id: "esophagectomy", label: "Esófago", image: esophagectomyImg, path: "/simulation/esophagectomy" },
 ];
 
 export function BodyRegionNav() {
