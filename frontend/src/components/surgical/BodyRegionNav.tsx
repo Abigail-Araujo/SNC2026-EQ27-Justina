@@ -6,11 +6,11 @@ import colonImg from "../../assets/surgical/organ-colon.jpg";
 import esophagectomyImg from "../../assets/surgical/organ-esophagus.jpg"; 
 
 const simulations = [
-  { id: "kidney", label: "Riñón", image: kidneyImg, path: "/simulation/kidney" },
-  { id: "liver", label: "Hígado", image: liverImg, path: "/simulation/liver" },
-  { id: "gastric", label: "Estómago", image: gastricImg, path: "/simulation/gastric" },
-  { id: "colon", label: "Colon", image: colonImg, path: "/simulation/colon" },
-  { id: "esophagectomy", label: "Esófago", image: esophagectomyImg, path: "/simulation/esophagectomy" },
+  { id: "kidney", label: "Kidney Uturing", image: kidneyImg, path: "/simulation/kidney-uturing" },
+  { id: "liver", label: "Liver Resection", image: liverImg, path: "/simulation/liver-resection" },
+  { id: "gastric", label: "Gastric Bypass", image: gastricImg, path: "/simulation/gastric-bypass" },
+  { id: "colon", label: "Colon Anastomosis" , image: colonImg, path: "/simulation/colon-anastomosis" },
+  { id: "esophagectomy", label: "Esophagectomy", image: esophagectomyImg, path: "/simulation/esophagectomy" },
 ];
 
 export function BodyRegionNav() {

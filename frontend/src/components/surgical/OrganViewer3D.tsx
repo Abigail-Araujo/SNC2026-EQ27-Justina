@@ -9,20 +9,19 @@ import surgicalColon from "../../assets/surgical/surgical-colon.png";
 import surgicalEsophagectomy from "../../assets/surgical/surgical-esophagectomy.png";
 
 const modelPaths: Record<string, string> = {
-  kidney: "/models/kidney.glb",
-  liver: "/models/liver.glb", 
-  gastric : "/models/digestive-sistem.glb",
-  colon: "/models/colon.glb",
-  esophagectomy: "/models/esophagus.glb",
-
+  "kidney-uturing": "/models/kidney.glb",     // Coincide con tu ruta
+  "liver-resection": "/models/liver.glb",     // Coincide con tu ruta
+  "gastric-bypass": "/models/digestive-sistem.glb", 
+  "colon-anastomosis": "/models/colon.glb",
+  "esophagectomy": "/models/esophagus.glb",
 };
 
 const fallbackImages: Record<string, string> = {
-  kidney: surgicalKidney,
-  liver: surgicalLiver,
-  gastric: surgicalGastric,
-  colon: surgicalColon,
-  esophagectomy: surgicalEsophagectomy,
+  "kidney-uturing": surgicalKidney,
+  "liver-resection": surgicalLiver,
+  "gastric-bypass": surgicalGastric,
+  "colon-anastomosis": surgicalColon,
+  "esophagectomy": surgicalEsophagectomy,
 };
 
 // Recibimos panRef
