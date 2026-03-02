@@ -9,4 +9,5 @@ router.post('/change-password', authenticate, validateChangePassword, AuthContro
 router.post('/register', validateRegister, AuthController.register);
 router.post('/login', validateLogin, AuthController.login);
 router.post('/logout', authenticate, AuthController.logout);
+router.get('/verify', authenticate, AuthController.verifyAuth);
 export default router;

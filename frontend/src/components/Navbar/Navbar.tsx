@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import type { FC } from 'react';
-import { NavLink, useLocation, Link } from 'react-router-dom';
+import { NavLink, useLocation, Link, useNavigate } from 'react-router-dom';
 import logoWhite from '../../assets/logo-white.svg';
 
 interface NavbarProps {}
 
 const Navbar: FC<NavbarProps> = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
 
   // Lógica de visibilidad dinámica
@@ -34,8 +36,24 @@ const Navbar: FC<NavbarProps> = () => {
   const activeStyles = "bg-sky-950 text-white px-4 py-2 rounded-full font-bold shadow-sm";
   const inactiveStyles = "text-white/90 hover:text-white px-4 py-2 transition-colors font-medium";
 
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:3000/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      navigate('/login');
+    }
+  };
+
   return (
-    <nav className="bg-cyan-800 shadow-lg p-3 rounded-xl border border-cyan-700/50">
+    <nav className="bg-cyan-800 shadow-lg p-3 rounded-xl border border-cyan-700/50 relative z-50">
       <div className="flex justify-between items-center px-4">
         {/* Logo */}
         <div className="flex items-center">
@@ -59,15 +77,39 @@ const Navbar: FC<NavbarProps> = () => {
             ))}
           </div>
 
-          <div className="hidden sm:block">
-
-            <Link to="/settings" className="hover:opacity-80 transition-opacity">
+          <div className="hidden sm:block relative">
+            <button 
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="hover:opacity-80 transition-opacity focus:outline-none"
+            >
               <div className="h-9 w-9 bg-sky-950 rounded-full flex items-center justify-center border border-white/20">
                 <svg className="h-5 w-5 text-cyan-200" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
                 </svg>
               </div>
-            </Link>
+            </button>
+
+            {/* Menú Desplegable de Perfil */}
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-2xl py-2 border border-slate-100 origin-top-right transition-all">
+                <div className="px-4 py-3 border-b border-slate-100">
+                  <p className="text-sm font-bold text-slate-800">Mi Cuenta</p>
+                </div>
+                <Link 
+                  to="/settings"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="block px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-cyan-800 transition-colors"
+                >
+                  Configuración
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors border-t border-slate-100"
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
+            )}
           </div>
 
           <button 
@@ -103,6 +145,15 @@ const Navbar: FC<NavbarProps> = () => {
           <Link to="/settings" className={`block px-4 py-2 text-white/80 hover:bg-white/10 hover:text-white rounded-lg text-center ${currentPath === '/settings' ? 'bg-sky-950 text-white' : ''}`} onClick={() => setIsOpen(false)}>
             Settings
           </Link>
+          <button 
+            onClick={() => {
+              setIsOpen(false);
+              handleLogout();
+            }} 
+            className="block w-full text-center px-4 py-2 mt-2 text-rose-300 font-bold hover:bg-white/10 rounded-lg transition-colors"
+          >
+            Cerrar Sesión
+          </button>
         </div>
       )}
     </nav>

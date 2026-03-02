@@ -13,12 +13,14 @@ import DashboardView from './views/DashboardView';
 import ResultsView from './views/ResultsView';
 import SimulationView from './views/SimulationView';
 import SettingsView from './views/SettingsView';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 // Inicializamos el cliente de consultas (necesario para el QueryClientProvider)
 const queryClient = new QueryClient();
 
 function App() {
   return (
+
     // 1. Envolvemos todo con las "capas" necesarias para tu UI
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -44,6 +46,7 @@ function App() {
 
       </TooltipProvider>
     </QueryClientProvider>
+
   );
 }
 
