@@ -14,20 +14,15 @@ import ResultsView from './views/ResultsView';
 import SimulationView from './views/SimulationView';
 import SettingsView from './views/SettingsView';
 
-
 const queryClient = new QueryClient();
 
 function App() {
   return (
-
-    
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        
-        
         <Toaster />
         <Sonner />
-        
+  
         <Router>
           <Routes>
             <Route path="/" element={<Navigate to="/login" />} />
@@ -35,17 +30,19 @@ function App() {
             <Route path="/register" element={<RegisterView />} />
             <Route path="/dashboard" element={<DashboardView />} />
             <Route path="/results" element={<ResultsView />} />
-            
-            {/* Agregamos /:organ? el organo acorde en esta seccion de la ruta */}
             <Route path="/simulation/:organ?" element={<SimulationView />} />
-            
+
+            {/*
+             Completar rutas dinámicas para resultados individuales:
+
+            <Route path="/results/:id" element={<ResultsPage />} />
+
+             */}
             <Route path="/settings" element={<SettingsView />} />
           </Routes>
         </Router>
-
       </TooltipProvider>
     </QueryClientProvider>
-
   );
 }
 
