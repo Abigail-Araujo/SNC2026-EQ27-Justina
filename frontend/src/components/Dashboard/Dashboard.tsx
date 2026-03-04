@@ -1,22 +1,45 @@
 import type { FC } from 'react';
 import TarjetaEscenario from '../TarjetaEscenario/TarjetaEscenario';
 
-// Imágenes generadas (usando rutas relativas o aliases si estuvieran configurados, 
-// aquí las pasaremos como props desde la vista o las definiremos aquí mismo)
+// Imágenes generadas
 import kidneyImg from '../../assets/scenarios/kidney.png';
 import liverImg from '../../assets/scenarios/liver.png';
-import prostateImg from '../../assets/scenarios/prostate.png';
+import esophagus from '../../assets/scenarios/Esophagectomy.png';
+import gastric from '../../assets/scenarios/gastric.png';
 
 interface DashboardProps {}
 
 const Dashboard: FC<DashboardProps> = () => {
+  // Array de escenarios actualizado con las rutas (path) para la navegación
   const scenarios = [
-    { title: 'Kidney Suturing', image: kidneyImg, difficulty: 3, personalBest: '15m 30s' },
-    { title: 'Liver Resection', image: liverImg, difficulty: 2, personalBest: '20m 15s' },
-    { title: 'Prostatectomy', image: prostateImg, difficulty: 4, personalBest: '25m 45s' },
-    { title: 'Gastric Bypass', image: kidneyImg, difficulty: 2, personalBest: '30m 00s' },
-    { title: 'Colon Anastomosis', image: liverImg, difficulty: 3, personalBest: '35m 20s' },
-    { title: 'Esophagectomy', image: prostateImg, difficulty: 4, personalBest: '40m 10s' },
+    { 
+      title: 'Kidney Suturing', 
+      image: kidneyImg, 
+      difficulty: 3, 
+      personalBest: '15m 30s',
+      path: '/simulation/kidney-uturing' 
+    },
+    { 
+      title: 'Liver Resection', 
+      image: liverImg, 
+      difficulty: 2, 
+      personalBest: '20m 15s',
+      path: '/simulation/liver-resection' 
+    },
+    { 
+      title: 'Gastric Bypass', 
+      image: gastric, 
+      difficulty: 2, 
+      personalBest: '30m 00s',
+      path: '/simulation/gastric-bypass' 
+    },
+    { 
+      title: 'Esophagectomy', 
+      image: esophagus, 
+      difficulty: 4, 
+      personalBest: '40m 10s',
+      path: '/simulation/esophagectomy' 
+    },
   ];
 
   return (
@@ -59,7 +82,8 @@ const Dashboard: FC<DashboardProps> = () => {
       <section>
         <h2 className="text-3xl font-black text-gray-900 mb-10 tracking-tight">Training Scenarios</h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-x-6 gap-y-12">
+        {/* Grid de Escenarios - Ahora pasando la prop 'path' */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
           {scenarios.map((scenario, index) => (
             <TarjetaEscenario 
               key={index}
@@ -67,6 +91,7 @@ const Dashboard: FC<DashboardProps> = () => {
               image={scenario.image}
               difficulty={scenario.difficulty}
               personalBest={scenario.personalBest}
+              path={scenario.path} // ¡Prop clave para que funcione el Link!
             />
           ))}
         </div>
