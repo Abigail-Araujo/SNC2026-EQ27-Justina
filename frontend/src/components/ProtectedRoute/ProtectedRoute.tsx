@@ -13,7 +13,6 @@ const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
       try {
         const res = await fetch('http://localhost:3000/api/auth/verify', {
           method: 'GET',
-          // Asegura que las cookies seguras (HttpOnly) se manden en la petición al servidor
           credentials: 'include',
         });
         
@@ -23,27 +22,26 @@ const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
           setIsAuthenticated(false);
         }
       } catch (error) {
+        // CORRECCIÓN: Aquí habia un error de consola que no estaba siendo manejado correctamente, ahora se captura y se muestra un mensaje de error claro.
+        console.error("Fallo en la verificación de sesión:", error);
         setIsAuthenticated(false);
       }
     };
     verifyAuth();
   }, []);
 
-  // Si aún no ha comprobado, mostramos algo vacío o de carga
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="w-12 h-12 rounded-full border-4 border-cyan-800 border-t-transparent animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="w-12 h-12 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin"></div>
       </div>
     );
   }
 
-  // Si verificó y no está logueado, expulsa al /login
   if (isAuthenticated === false) {
     return <Navigate to="/login" replace />;
   }
 
-  // Si verificó y está correcto, dibuja el componente (dashboard, options, etc)
   return <>{children}</>;
 };
 

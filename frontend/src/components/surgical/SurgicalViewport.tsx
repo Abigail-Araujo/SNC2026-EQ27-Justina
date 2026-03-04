@@ -36,8 +36,8 @@ export function SurgicalViewport() {
     pan.current = { x: 0, y: 0 };
   }, [viewResetCounter]);
 
-  // Manejo de eventos de puntero
   const handlePointerEnter = () => setIsMouseInside(true);
+  
   const handlePointerLeave = () => {
     isDragging.current = false;
     setIsMouseInside(false);
@@ -45,23 +45,28 @@ export function SurgicalViewport() {
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
-    if (isDragging.current && activeViewTool === "move") {
+    
+    // CORRECCIÓN: Ahora evaluamos isDragging independientemente de la herramienta
+    if (isDragging.current) {
       const dx = e.clientX - lastPos.current.x;
       const dy = e.clientY - lastPos.current.y;
       pan.current = { x: pan.current.x + dx, y: pan.current.y + dy };
       lastPos.current = { x: e.clientX, y: e.clientY };
     }
-  }, [activeViewTool]);
+  }, []);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (activeViewTool === "move") {
+    // CORRECCIÓN: Activamos el paneo si es la herramienta 'move' O si es clic derecho (botón 2)
+    if (activeViewTool === "move" || e.button === 2) {
       isDragging.current = true;
       lastPos.current = { x: e.clientX, y: e.clientY };
       (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     }
   }, [activeViewTool]);
 
-  const handlePointerEnd = useCallback(() => { isDragging.current = false; }, []);
+  const handlePointerEnd = useCallback(() => { 
+    isDragging.current = false; 
+  }, []);
 
   // ZOOM POR SCROLL
   useEffect(() => {
@@ -79,7 +84,6 @@ export function SurgicalViewport() {
   }, []);
 
   // Teclado para mover la cámara (WASD / Flechas)
-  // SE INVIRTIERON LOS VALORES X (Left: step, Right: -step) para coincidir visualmente
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -98,14 +102,13 @@ export function SurgicalViewport() {
   // CURSOR DINÁMICO
   let systemCursor = "default";
   if (isMouseInside) {
-    if (activeInstrument) systemCursor = "none";
+    if (activeInstrument) systemCursor = "none"; // Oculta cursor si hay instrumento, el paneo derecho funciona igual
     else if (activeViewTool === "move") systemCursor = isDragging.current ? "grabbing" : "grab";
     else if (activeViewTool === "zoom") systemCursor = "zoom-in";
   }
 
   const currentToolImg = activeInstrument ? TOOL_IMAGE_MAP[activeInstrument] : null;
 
-  // Ajuste de punta según el instrumento
   const toolTransform = activeInstrument === "sutura" 
     ? "translate(-10%, -90%)" 
     : "translate(-50%, -50%)";
@@ -121,14 +124,13 @@ export function SurgicalViewport() {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
       onPointerCancel={handlePointerEnd}
+      // Mantenemos esto para que al dar clic derecho NO se abra el menú del navegador
       onContextMenu={(e) => e.preventDefault()}
     >
-      {/* 1. VISOR 3D */}
       <div className="absolute inset-0">
         <OrganViewer3D organ={currentOrgan} zoom={zoom[0]} setZoom={setZoom} panRef={pan} />
       </div>
 
-      {/* 2. INSTRUMENTO QUIRÚRGICO (CURSOR MOUSE) */}
       {currentToolImg && isMouseInside && (
         <div
           className="fixed pointer-events-none z-50 will-change-transform"
@@ -142,7 +144,6 @@ export function SurgicalViewport() {
         </div>
       )}
 
-      {/* 3. OVERLAYS VISUALES (MIRA Y VIÑETA) */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-60">
         <div className="w-12 h-12 rounded-full border border-cyan-500/30 absolute flex items-center justify-center">
           <div className="w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_5px_rgba(34,211,238,1)]" />
@@ -156,7 +157,6 @@ export function SurgicalViewport() {
         style={{ background: "radial-gradient(circle at center, transparent 40%, rgba(2,6,23,0.8) 100%)" }} 
       />
 
-      {/* 4. CONTROLES DE CÁMARA (D-PAD) */}
       <div className="absolute bottom-6 left-6 flex flex-col gap-2 z-20">
         <div className="flex items-center gap-1.5 px-1">
           <Focus className="w-3.5 h-3.5 text-cyan-500" />
@@ -170,7 +170,6 @@ export function SurgicalViewport() {
             <ChevronUp className="w-5 h-5" />
           </button>
           
-          {/* SE INVIRTIÓ EL VALOR A 50 */}
           <button onClick={() => movePan(50, 0)} className="col-start-1 row-start-2 flex items-center justify-center p-2 rounded-l-xl rounded-r-sm bg-slate-800/80 hover:bg-cyan-900/50 border border-slate-700 hover:border-cyan-500/60 text-slate-400 hover:text-cyan-300 transition-all hover:shadow-[0_0_10px_rgba(34,211,238,0.3)] active:scale-95">
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -179,7 +178,6 @@ export function SurgicalViewport() {
             <div className="w-2.5 h-2.5 rounded-full bg-slate-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)] border border-slate-600/50" />
           </div>
 
-          {/* SE INVIRTIÓ EL VALOR A -50 */}
           <button onClick={() => movePan(-50, 0)} className="col-start-3 row-start-2 flex items-center justify-center p-2 rounded-r-xl rounded-l-sm bg-slate-800/80 hover:bg-cyan-900/50 border border-slate-700 hover:border-cyan-500/60 text-slate-400 hover:text-cyan-300 transition-all hover:shadow-[0_0_10px_rgba(34,211,238,0.3)] active:scale-95">
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -190,7 +188,6 @@ export function SurgicalViewport() {
         </div>
       </div>
 
-      {/* 5. CONTROL DE ZOOM */}
       <div className="absolute bottom-6 right-6 flex flex-col gap-2 w-52 z-20">
         <div className="flex justify-between items-end px-1">
           <span className="text-[10px] font-bold tracking-widest text-cyan-500/80 uppercase">

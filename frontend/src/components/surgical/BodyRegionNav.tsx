@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import kidneyImg from "../../assets/surgical/organ-kidney.png";
 import liverImg from "../../assets/surgical/organ-liver.png";
 import gastricImg from "../../assets/surgical/organ-gastric.jpg";
-import colonImg from "../../assets/surgical/organ-colon.jpg";
 import esophagectomyImg from "../../assets/surgical/organ-esophagus.jpg"; 
 
 const simulations = [

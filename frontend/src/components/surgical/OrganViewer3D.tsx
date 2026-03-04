@@ -14,7 +14,6 @@ const modelPaths: Record<string, string> = {
   "kidney-uturing": "/models/kidney.glb",
   "liver-resection": "/models/liver.glb",
   "gastric-bypass": "/models/digestive-sistem.glb", 
-  "colon-anastomosis": "/models/colon.glb",
   "esophagectomy": "/models/esophagus.glb",
 };
 
@@ -52,17 +51,17 @@ function OrganModel({ organ, zoom, panRef }: OrganModelProps) {
   }, [scene, organ]);
 
   useFrame(() => {
-    if (groupRef.current) {
-      // 1. Zoom: Mapeamos el zoom del slider (0-100) a escala física (0.5 a 2.5)
-      const targetScale = 0.5 + (zoom / 100) * 2;
-      groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+    // CORRECCIÓN: Verificación de seguridad para evitar errores si el ref aún no está montado
+    if (!groupRef.current || !scene) return;
 
-      // 2. Paneo: Convertimos los píxeles del panRef a unidades 3D
-      // Multiplicamos por 0.01 para una sensibilidad natural
-      const targetX = panRef.current.x * 0.01;
-      const targetY = -panRef.current.y * 0.01;
-      groupRef.current.position.lerp(new THREE.Vector3(targetX, targetY, 0), 0.1);
-    }
+    // 1. Zoom: Mapeamos el zoom del slider (0-100) a escala física (0.5 a 2.5)
+    const targetScale = 0.5 + (zoom / 100) * 2;
+    groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+
+    // 2. Paneo: Convertimos los píxeles del panRef a unidades 3D
+    const targetX = panRef.current.x * 0.01;
+    const targetY = -panRef.current.y * 0.01;
+    groupRef.current.position.lerp(new THREE.Vector3(targetX, targetY, 0), 0.1);
   });
 
   return (
@@ -75,17 +74,42 @@ function OrganModel({ organ, zoom, panRef }: OrganModelProps) {
 }
 
 // --- FALLBACK 2D ---
-function FallbackImage({ organ, zoom, panRef }: { organ: string; zoom: number; panRef: any }) {
+interface FallbackImageProps {
+  organ: string;
+  zoom: number;
+  panRef: React.MutableRefObject<{ x: number; y: number }>;
+}
+
+function FallbackImage({ organ, zoom, panRef }: FallbackImageProps) {
   const src = fallbackImages[organ] || fallbackImages["liver-resection"];
+  
+  // CORRECCIÓN: Ref para manipular el DOM directamente sin disparar re-renders
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useLayoutEffect(() => {
+    let animationFrameId: number;
+
+    const updateTransform = () => {
+      if (imgRef.current) {
+        // Leemos el ref de manera segura FUERA del render loop principal de React
+        const currentPan = panRef.current;
+        imgRef.current.style.transform = `translate(${currentPan.x}px, ${currentPan.y}px) scale(${1 + zoom / 100})`;
+      }
+      animationFrameId = requestAnimationFrame(updateTransform);
+    };
+
+    updateTransform();
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [zoom, panRef]);
+
   return (
     <div className="w-full h-full overflow-hidden flex items-center justify-center bg-zinc-950">
       <img
+        ref={imgRef}
         src={src}
         alt={`Vista quirúrgica - ${organ}`}
-        className="transition-transform duration-200 ease-out object-contain max-h-full"
-        style={{ 
-          transform: `translate(${panRef.current.x}px, ${panRef.current.y}px) scale(${1 + zoom / 100})` 
-        }}
+        className="transition-transform duration-75 ease-out object-contain max-h-full"
         draggable={false}
       />
     </div>
@@ -119,7 +143,7 @@ function supportsWebGL(): boolean {
 interface OrganViewer3DProps {
   organ: string;
   zoom: number;
-  setZoom: (zoom: number[] | ((prev: number[]) => number[])) => void; // Ajustado para recibir el setter del array [zoom]
+  setZoom: (zoom: number[] | ((prev: number[]) => number[])) => void;
   panRef: React.MutableRefObject<{ x: number; y: number }>;
 }
 
@@ -127,15 +151,14 @@ export function OrganViewer3D({ organ, zoom, setZoom, panRef }: OrganViewer3DPro
   const [webgl] = useReactState(() => supportsWebGL());
   const [hardwareError, setHardwareError] = useReactState(false);
 
-  // Manejador del Zoom mediante Scroll (Sincronizado con el Slider del padre)
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     const direction = e.deltaY > 0 ? -1 : 1;
-    const speed = 2; // Sensibilidad del scroll
+    const speed = 2;
 
     setZoom((prev) => {
       const nextZoom = prev[0] + direction * speed;
-      return [Math.min(Math.max(nextZoom, 0), 100)]; // Clamping entre 0 y 100
+      return [Math.min(Math.max(nextZoom, 0), 100)];
     });
   }, [setZoom]);
 
@@ -159,7 +182,6 @@ export function OrganViewer3D({ organ, zoom, setZoom, panRef }: OrganViewer3DPro
 
   return (
     <WebGLErrorBoundary fallback={renderFallback}>
-      {/* El div bloquea el menú contextual para que el clic derecho rote el modelo libremente */}
       <div 
         className="w-full h-full relative select-none" 
         onContextMenu={(e) => e.preventDefault()}
@@ -180,11 +202,11 @@ export function OrganViewer3D({ organ, zoom, setZoom, panRef }: OrganViewer3DPro
 
           <OrbitControls
             enablePan={false}
-            enableZoom={false} // Zoom manual vía scroll/slider
+            enableZoom={false}
             dampingFactor={0.05}
             enableDamping
             mouseButtons={{
-              RIGHT: THREE.MOUSE.ROTATE, // Rotación obligatoria con clic derecho
+              RIGHT: THREE.MOUSE.ROTATE,
             }}
           />
         </Canvas>
@@ -193,5 +215,4 @@ export function OrganViewer3D({ organ, zoom, setZoom, panRef }: OrganViewer3DPro
   );
 }
 
-// Pre-carga
 Object.values(modelPaths).forEach((path) => useGLTF.preload(path));

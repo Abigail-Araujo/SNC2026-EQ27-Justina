@@ -55,11 +55,13 @@ export function InstrumentToolbar() {
     }
   };
 
-  const handleInstrumentClick = (id: string) => {
+const handleInstrumentClick = (id: string) => {
     if (activeInstrument === id) {
-      setActiveInstrument(null);
+      
+      setActiveInstrument(""); 
     } else {
-      setActiveViewTool(null); 
+      
+      setActiveViewTool(""); 
       setActiveInstrument(id);
     }
   };
