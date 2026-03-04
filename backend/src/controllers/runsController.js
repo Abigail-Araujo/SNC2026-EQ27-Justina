@@ -38,6 +38,19 @@ class RunsController {
             next(err);
         }
     }
+
+    static async getRunReport(req, res, next) {
+        try {
+            const report = await runService.generateReport(req.params.id);
+            if (!report) {
+                return res.status(404).json({ error: 'Run report not found' });
+            }
+            res.json(report);
+        } catch (err) {
+            next(err);
+        }
+    }
+
     static async getRunsByUser(req, res, next) {
         try {
             const runs = await runService.getRunsByUser(req.userId);

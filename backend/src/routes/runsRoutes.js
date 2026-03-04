@@ -7,6 +7,7 @@ const router = Router();
 // Rutas para runs
 router.post('/', authenticate, RunsController.startRun);
 router.patch('/:id/finish', authenticate, RunsController.finishRun);
+router.get('/:id/report', authenticate, RunsController.getRunReport);
 router.get('/me', authenticate, RunsController.getRunsByUser);
 router.get('/', authenticate, RunsController.getAll);
 router.get('/:id', authenticate, RunsController.getRunById);
