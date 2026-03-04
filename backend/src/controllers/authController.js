@@ -28,7 +28,8 @@ export default class AuthController {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
                     sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-                    maxAge: 8 * 60 * 60 * 1000 // 8 horas
+                    maxAge: 8 * 60 * 60 * 1000, // 8 horas
+                    path: '/'
                 }
             )
 
@@ -40,7 +41,7 @@ export default class AuthController {
 
     static async logout(req, res, next) {
         try {
-            res.clearCookie('authToken');
+            res.clearCookie('authToken', { path: '/' });
             res.json({ message: 'Logout realizado correctamente' });
         } catch (error) {
             next(error);
@@ -49,7 +50,11 @@ export default class AuthController {
 
     static async verifyAuth(req, res, next) {
         // middleware authenticate ya validó la cookie y cargó req.userId
-        res.status(200).json({ isAuthenticated: true, userId: req.userId });
+        try {
+            res.status(200).json({ isAuthenticated: true, userId: req.userId });
+        } catch (error) {
+            next(error);
+        }
     }
 
 }
