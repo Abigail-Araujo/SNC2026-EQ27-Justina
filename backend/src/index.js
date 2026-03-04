@@ -16,13 +16,16 @@ import procedureRoutes from './routes/procedureRoutes.js';
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middlewares
+// Middlewares (orden es importante)
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
