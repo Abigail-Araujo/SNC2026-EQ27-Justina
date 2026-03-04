@@ -53,8 +53,8 @@ const Navbar: FC<NavbarProps> = () => {
   };
 
   return (
-    <nav className="bg-cyan-800 shadow-lg p-3 rounded-xl border border-cyan-700/50 relative z-50">
-      <div className="flex justify-between items-center px-4">
+    <nav className="bg-cyan-800 shadow-lg p-3 border border-cyan-700/50 relative z-50">
+      <div className="flex justify-around items-center px-4">
         {/* Logo */}
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center gap-2">
