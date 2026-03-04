@@ -9,8 +9,8 @@ const NavbarInicio: FC<NavbarInicioProps> = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-cyan-800 shadow-md p-4 rounded-lg">
-      <div className="flex justify-between items-center">
+    <nav className="bg-cyan-800 shadow-md p-4">
+      <div className="flex justify-around items-center">
         <div className="flex items-center">
           <Link to="/login">
             <img src={logoWhite} alt="Logo" className="h-6 w-auto cursor-pointer" />
