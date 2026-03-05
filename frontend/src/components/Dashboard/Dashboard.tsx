@@ -70,9 +70,7 @@ const Dashboard: FC<DashboardProps> = () => {
           <div>
             <div className="flex items-end justify-between">
               <span className="text-4xl font-black text-gray-900">12%</span>
-              <button className="text-cyan-600 font-bold hover:text-cyan-700 flex items-center gap-1 transition-colors">
-                More details <span className="text-xl">→</span>
-              </button>
+
             </div>
           </div>
         </div>

@@ -4,13 +4,12 @@ import { useSimulation } from "../../contexts/SimulationContext";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useNavigate, useLocation } from "react-router-dom";
 
-// IMPORTANTE: Asegúrate de que estas rutas a tus imágenes sean las correctas en tu proyecto
+// Asegúrate de que las rutas a las imágenes sean correctas
 import kidneyImg from "../../assets/surgical/organ-kidney.png";
 import liverImg from "../../assets/surgical/organ-liver.png";
 import gastricImg from "../../assets/surgical/organ-gastric.jpg";
 import esophagectomyImg from "../../assets/surgical/organ-esophagus.jpg"; 
 
-// Array completo con IDs, nombres legibles, imágenes y rutas
 const simulations = [
   { id: "kidney", label: "Kidney Suturing", image: kidneyImg, path: "/simulation/kidney-uturing" },
   { id: "liver", label: "Liver Resection", image: liverImg, path: "/simulation/liver-resection" },
@@ -33,39 +32,55 @@ export function TopToolbar() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Estado para controlar el pop-up/modal
   const [showFinishModal, setShowFinishModal] = useState(false);
+  
+  // 🛡️ NUEVA MEMORIA: Rastrea si ya guardamos los datos de esta partida
+  const [hasSavedThisSession, setHasSavedThisSession] = useState(false);
 
-  // Estilo base reutilizable para botones
   const btnStyle = "flex items-center justify-center w-9 h-9 rounded-lg bg-slate-800/80 border border-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-cyan-400 hover:border-cyan-500/50 transition-all";
 
+  // Función envuelta para reiniciar también la memoria de guardado
+  const handleResetSimulation = () => {
+    resetTimer();
+    setHasSavedThisSession(false); // Permite guardar de nuevo si reinician la cirugía
+  };
+
   const handleFinishSimulation = () => {
-    // 1. Pausamos la simulación
+    // 1. Siempre pausamos el tiempo al darle a finalizar
     if (isPlaying) {
       togglePlay();
     }
 
-    // 2. Identificamos todos los datos de la cirugía actual
+    // 2. 🛡️ CANDADO LÓGICO: Si ya guardamos, solo mostramos el modal y NO creamos datos nuevos.
+    if (hasSavedThisSession) {
+      setShowFinishModal(true);
+      return;
+    }
+
+    // 3. Si es la primera vez que finalizan esta partida, guardamos los datos:
     const currentSim = simulations.find(sim => sim.path === location.pathname);
     
-    // 3. Creamos el objeto de resultado extendido
+    // Le agregamos Math.random() al ID por si dan doble clic rapidísimo, para que sea 100% único
+    const uniqueSessionId = `sim_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
     const newResult = {
+      sessionId: uniqueSessionId,
       id: currentSim ? currentSim.id : "unknown",
-      label: currentSim ? currentSim.label : "Simulación Desconocida", // Nombra la cirugía
-      image: currentSim ? currentSim.image : "", // Guarda el thumbnail
+      label: currentSim ? currentSim.label : "Simulación Desconocida",
+      image: currentSim ? currentSim.image : "",
       fecha: new Date().toISOString(),
       duracion: elapsedSeconds,
       puntaje: Math.floor(Math.random() * (100 - 80 + 1)) + 80, 
       signosVitales: "Estables (115/75)", 
-      cirujano: "Dr. Invitado", // Nombre genérico
+      cirujano: "Dr. Invitado",
     };
 
-    // 4. Actualizamos el historial en localStorage
     const existingHistory = JSON.parse(localStorage.getItem('simulation_results') || '[]');
     const updatedHistory = [newResult, ...existingHistory];
     localStorage.setItem('simulation_results', JSON.stringify(updatedHistory));
 
-    // 5. Lanzamos el Pop-up
+    // 4. Marcamos la partida como guardada y mostramos el pop-up
+    setHasSavedThisSession(true);
     setShowFinishModal(true);
   };
 
@@ -73,7 +88,7 @@ export function TopToolbar() {
     <>
       <div className="bg-slate-900/80 backdrop-blur-md border border-slate-700/70 shadow-2xl rounded-xl px-5 py-3 flex items-center justify-between select-none">
         
-        {/* IZQUIERDA: Info de Simulación y Estado */}
+        {/* IZQUIERDA: Info de Simulación */}
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-md border border-slate-700/50">
             <div 
@@ -100,11 +115,12 @@ export function TopToolbar() {
           </div>
         </div>
 
-        {/* CENTRO: Controles de Reproducción */}
+        {/* CENTRO: Controles */}
         <div className="flex items-center gap-2 bg-slate-800/40 p-1 rounded-xl border border-slate-700/30">
           <Tooltip>
             <TooltipTrigger asChild>
-              <button onClick={resetTimer} className={btnStyle} disabled={showFinishModal}>
+              {/* Actualizado para usar la nueva función de reset */}
+              <button onClick={handleResetSimulation} className={btnStyle} disabled={showFinishModal}>
                 <RotateCcw className="w-4 h-4" />
               </button>
             </TooltipTrigger>
@@ -131,7 +147,7 @@ export function TopToolbar() {
           </Tooltip>
         </div>
 
-        {/* DERECHA: Acciones y Navegación */}
+        {/* DERECHA: Acciones */}
         <div className="flex items-center gap-3">
           <div className="flex gap-1.5">
             <Tooltip>
@@ -155,7 +171,6 @@ export function TopToolbar() {
 
           <div className="h-5 w-px bg-slate-700 mx-1" />
 
-          {/* BOTÓN DASHBOARD */}
           <button 
             onClick={() => navigate('/dashboard')}
             className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 rounded-lg transition-all"
@@ -164,10 +179,14 @@ export function TopToolbar() {
             <span className="text-xs uppercase tracking-wider font-bold">Panel</span>
           </button>
 
-          {/* BOTÓN FINALIZAR */}
           <button 
             onClick={handleFinishSimulation}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/50 hover:border-emerald-400 text-emerald-400 rounded-lg transition-all shadow-[0_0_10px_rgba(16,185,129,0.15)] hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+            disabled={showFinishModal}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all 
+              ${showFinishModal 
+                ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' 
+                : 'bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/50 hover:border-emerald-400 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.15)] hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+              }`}
           >
             <Flag className="w-4 h-4" />
             <span className="text-xs uppercase tracking-wider font-bold">Finalizar</span>
