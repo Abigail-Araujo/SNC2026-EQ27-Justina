@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 interface SimulationResult {
+  sessionId: string;
   id: string;
   label: string;
   image: string;
@@ -33,8 +34,7 @@ const getScoreStyles = (score: number) => {
 };
 
 const Results: FC = () => {
-  // SOLUCIÓN AL ERROR: Lazy initialization. 
-  // Lee el localStorage directamente al iniciar el estado, sin necesidad de useEffect.
+  // Inicialización perezosa para evitar el warning de setState en useEffect
   const [results, setResults] = useState<SimulationResult[]>(() => {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
@@ -54,7 +54,7 @@ const Results: FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 md:p-12 text-slate-200 font-sans selection:bg-cyan-900 selection:text-cyan-50">
+    <div className="min-h-screen bg-slate-950 p-6 md:p-12 text-slate-200 font-sans selection:bg-cyan-900 selection:text-cyan-50">
       <div className="max-w-6xl mx-auto">
         
         {/* HEADER: Navegación y Título */}
@@ -67,11 +67,11 @@ const Results: FC = () => {
               <ArrowLeft className="w-5 h-5" />
               Volver al Panel Principal
             </Link>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-600 flex items-center gap-3">
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white flex items-center gap-3">
               <ClipboardList className="w-8 h-8 text-cyan-500" />
               Historial Quirúrgico
             </h2>
-            <p className="mt-2 text-slate-800 font-medium">
+            <p className="mt-2 text-slate-400 font-medium">
               Registro detallado de simulaciones médicas completadas.
             </p>
           </div>
@@ -100,7 +100,7 @@ const Results: FC = () => {
             </p>
             <Link 
               to="/dashboard"
-              className="mt-6 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(8,145,178,0.4)]"
+              className="mt-6 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(8,145,178,0.4)] inline-block"
             >
               Ir a Simulaciones
             </Link>
@@ -110,15 +110,16 @@ const Results: FC = () => {
         {/* GRID DE RESULTADOS */}
         {results.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {results.map((r, index) => (
+            {results.map((r) => (
               <div
-                key={index}
+                // Usamos el sessionId como key única, o la fecha si sessionId no existe
+                key={r.sessionId || r.fecha} 
                 className="group relative bg-slate-900 rounded-2xl border border-slate-800 p-1 shadow-lg hover:shadow-2xl hover:border-slate-700 transition-all duration-300 overflow-hidden"
               >
                 {/* Overlay de brillo sutil en hover */}
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                <div className="p-5">
+                <div className="p-5 relative z-10">
                   {/* Cabecera de la Tarjeta: Imagen y Puntaje */}
                   <div className="flex justify-between items-start mb-5 gap-4">
                     <div className="flex items-center gap-4">
