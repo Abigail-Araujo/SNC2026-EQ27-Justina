@@ -13,6 +13,7 @@ import DashboardView from './views/DashboardView';
 import ResultsView from './views/ResultsView';
 import SimulationView from './views/SimulationView';
 import SettingsView from './views/SettingsView';
+import Results from './components/Results/Results';
 
 const queryClient = new QueryClient();
 
@@ -32,12 +33,9 @@ function App() {
             <Route path="/results" element={<ResultsView />} />
             <Route path="/simulation/:organ?" element={<SimulationView />} />
 
-            {/*
-             Completar rutas dinámicas para resultados individuales:
+            <Route path="/results" element={<Results />} />
 
-            <Route path="/results/:id" element={<ResultsPage />} />
-
-             */}
+            
             <Route path="/settings" element={<SettingsView />} />
           </Routes>
         </Router>

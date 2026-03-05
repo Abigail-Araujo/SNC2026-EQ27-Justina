@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar/Navbar';
 const SettingsView = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="w-full p-4 sm:p-6 max-w-7xl mx-auto">
+      <header className="w-full">
         <Navbar />
       </header>
       <main className="p-8">

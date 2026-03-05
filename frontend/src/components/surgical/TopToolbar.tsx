@@ -4,11 +4,18 @@ import { useSimulation } from "../../contexts/SimulationContext";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// IMPORTANTE: Asegúrate de que estas rutas a tus imágenes sean las correctas en tu proyecto
+import kidneyImg from "../../assets/surgical/organ-kidney.png";
+import liverImg from "../../assets/surgical/organ-liver.png";
+import gastricImg from "../../assets/surgical/organ-gastric.jpg";
+import esophagectomyImg from "../../assets/surgical/organ-esophagus.jpg"; 
+
+// Array completo con IDs, nombres legibles, imágenes y rutas
 const simulations = [
-  { id: "kidney", path: "/simulation/kidney-uturing" },
-  { id: "liver", path: "/simulation/liver-resection" },
-  { id: "gastric", path: "/simulation/gastric-bypass" },
-  { id: "esophagectomy", path: "/simulation/esophagectomy" },
+  { id: "kidney", label: "Kidney Suturing", image: kidneyImg, path: "/simulation/kidney-uturing" },
+  { id: "liver", label: "Liver Resection", image: liverImg, path: "/simulation/liver-resection" },
+  { id: "gastric", label: "Gastric Bypass", image: gastricImg, path: "/simulation/gastric-bypass" },
+  { id: "esophagectomy", label: "Esophagectomy", image: esophagectomyImg, path: "/simulation/esophagectomy" },
 ];
 
 function formatTime(totalSeconds: number) {
@@ -26,31 +33,39 @@ export function TopToolbar() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // ESTADO NUEVO: Controla si el modal de éxito está visible
+  // Estado para controlar el pop-up/modal
   const [showFinishModal, setShowFinishModal] = useState(false);
 
-  // Identificamos el ID de la simulación actual de forma global en el componente
-  const currentSim = simulations.find(sim => sim.path === location.pathname);
-  const simulationId = currentSim ? currentSim.id : "unknown";
-
+  // Estilo base reutilizable para botones
   const btnStyle = "flex items-center justify-center w-9 h-9 rounded-lg bg-slate-800/80 border border-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-cyan-400 hover:border-cyan-500/50 transition-all";
 
   const handleFinishSimulation = () => {
-    // 1. Pausamos la simulación si está corriendo
+    // 1. Pausamos la simulación
     if (isPlaying) {
       togglePlay();
     }
 
-    // 2. Guardamos en LocalStorage
-    const simulationResult = {
-      id: simulationId,
-      timeInSeconds: elapsedSeconds,
-      formattedTime: formatTime(elapsedSeconds),
-      timestamp: new Date().toISOString()
+    // 2. Identificamos todos los datos de la cirugía actual
+    const currentSim = simulations.find(sim => sim.path === location.pathname);
+    
+    // 3. Creamos el objeto de resultado extendido
+    const newResult = {
+      id: currentSim ? currentSim.id : "unknown",
+      label: currentSim ? currentSim.label : "Simulación Desconocida", // Nombra la cirugía
+      image: currentSim ? currentSim.image : "", // Guarda el thumbnail
+      fecha: new Date().toISOString(),
+      duracion: elapsedSeconds,
+      puntaje: Math.floor(Math.random() * (100 - 80 + 1)) + 80, 
+      signosVitales: "Estables (115/75)", 
+      cirujano: "Dr. Invitado", // Nombre genérico
     };
-    localStorage.setItem('lastSimulationResult', JSON.stringify(simulationResult));
 
-    // 3. Mostramos el Modal en lugar de navegar
+    // 4. Actualizamos el historial en localStorage
+    const existingHistory = JSON.parse(localStorage.getItem('simulation_results') || '[]');
+    const updatedHistory = [newResult, ...existingHistory];
+    localStorage.setItem('simulation_results', JSON.stringify(updatedHistory));
+
+    // 5. Lanzamos el Pop-up
     setShowFinishModal(true);
   };
 
@@ -149,7 +164,7 @@ export function TopToolbar() {
             <span className="text-xs uppercase tracking-wider font-bold">Panel</span>
           </button>
 
-          {/* BOTÓN FINALIZAR SIMULACIÓN */}
+          {/* BOTÓN FINALIZAR */}
           <button 
             onClick={handleFinishSimulation}
             className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/50 hover:border-emerald-400 text-emerald-400 rounded-lg transition-all shadow-[0_0_10px_rgba(16,185,129,0.15)] hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]"
@@ -160,9 +175,9 @@ export function TopToolbar() {
         </div>
       </div>
 
-      {/* POP-UP / MODAL DE ÉXITO */}
+      {/* MODAL DE ÉXITO */}
       {showFinishModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-slate-900 border border-slate-700 shadow-2xl rounded-2xl p-8 max-w-sm w-full flex flex-col items-center text-center mx-4 animate-in zoom-in-95 duration-300">
             
             <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
@@ -171,7 +186,7 @@ export function TopToolbar() {
             
             <h2 className="text-2xl font-black text-white mb-2 tracking-tight">¡Simulación Exitosa!</h2>
             <p className="text-slate-400 text-sm mb-6">
-              El procedimiento ha sido registrado. Los datos de la intervención están listos para su análisis.
+              El procedimiento ha sido registrado. Los datos de la intervención están listos para su análisis en el historial.
             </p>
 
             <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl w-full py-4 mb-8">
@@ -181,16 +196,14 @@ export function TopToolbar() {
               </span>
             </div>
 
-            {/* BOTÓN HACIA RESULTADOS (Utiliza el ID dinámico) */}
             <button 
-              onClick={() => navigate(`/results/${simulationId}`)}
+              onClick={() => navigate('/results')}
               className="w-full flex items-center justify-center gap-2 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(8,145,178,0.4)] hover:shadow-[0_0_25px_rgba(8,145,178,0.6)] active:scale-[0.98]"
             >
               <BarChart className="w-5 h-5" />
-              <span>Ver Resultados Detallados</span>
+              <span>Ver Historial de Resultados</span>
             </button>
 
-            {/* Botón secundario para volver o cancelar */}
             <button 
               onClick={() => setShowFinishModal(false)}
               className="mt-4 text-sm text-slate-500 hover:text-slate-300 transition-colors font-medium"
